@@ -1,1 +1,3 @@
-timestamptype_of_food,number_of_guests,event_type,quantity_of_food,preparation_method,geographical_location,pricing,wastage_food_amount,actual_location,name_of_food
+timestamp,type_of_food,number_of_guests,event_type,quantity_of_food,serving_method,geographical_location,pricing,wastage_food_amount,actual_location,name_of_food
+2025-04-24 10:05:09,Meat,318,Birthday,413.22890625,Buffet,Rural,High,32.30294341195476,,boost
+2025-04-24 10:05:54,Snack,318,Birthday,413.22890625,Buffet,Rural,High,32.88282386599478,,horlicks

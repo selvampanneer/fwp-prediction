@@ -1,7 +1,9 @@
+from datetime import datetime
 import streamlit as st
 import pandas as pd
 import joblib
 from food_type_classify import food_type_classify
+from helper import columns as log_columns
 # Load model and data
 model = joblib.load("rf.pkl")
 input_columns = joblib.load("input_columns.pkl")
@@ -26,7 +28,8 @@ original_df = df.copy()
 st.title("🍽️ Dynamic Food Waste Predictor")
 
 input_data = {}
-
+log_data = {}
+log_data['actual_location'] = ""
 # Build UI dynamically
 for col in numerical:
     lower_bound, upper_bound, mid= 50.0, 1000.0, df[col].mean()
@@ -38,6 +41,7 @@ for col in numerical:
 for col in categorical:
     if col == "type_of_food":
         food_type = st.text_input("type_of_food")
+        log_data['name_of_food'] = food_type
         input_data["type_of_food"] = food_type_classify(food_type)
         continue
     options = sorted(df[col].dropna().unique())
@@ -57,20 +61,28 @@ input_df = pd.DataFrame([input_data])
 input_encoded = pd.get_dummies(input_df)
 input_encoded.rename(columns=lambda x: x.replace(' ', '_').lower(), inplace=True)
 print(input_encoded.columns)
-enemy = input_encoded
+# enemy = input_encoded
 for col in input_columns:
     if col not in input_encoded:
         input_encoded[col] = 0
 
 input_encoded = input_encoded[input_columns]
 
+def log_record(log_data):
+    record = input_df
+    record['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    record['wastage_food_amount'] = log_data['wastage_food_amount']
+    record['actual_location'] = log_data['actual_location']
+    record['name_of_food'] = log_data['name_of_food']
+    record = record[log_columns]
+    record.to_csv('log.csv', mode='a', header=False, index=False)
 # Predict
 if st.button("Predict Food Waste"):
     print(input_encoded.shape)
     pred = model.predict(input_encoded)[0]
-    input_df['wastage_food_amount'] = f"{pred}:.2f"
+    log_data['wastage_food_amount'] = pred
     st.success(f"Predicted Food Waste: **{pred:.2f} kg**")
-    input_df.to_csv('log.csv', mode='a', header=False, index=False)
+    log_record(log_data)
 
 # Show debug info
 with st.expander("🔍 Input Row Preview"):

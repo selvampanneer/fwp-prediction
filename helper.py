@@ -1,12 +1,12 @@
 import pandas as pd
 # Define the column headers
 columns = [
-    'timestamp'
+    'timestamp',
     'type_of_food',
     'number_of_guests',
     'event_type',
     'quantity_of_food',
-    'preparation_method',
+    'serving_method',
     'geographical_location',
     'pricing',
     'wastage_food_amount',
