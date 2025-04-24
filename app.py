@@ -29,7 +29,10 @@ input_data = {}
 
 # Build UI dynamically
 for col in numerical:
-    val = st.number_input(f"{col.replace('_', ' ').capitalize()}", float(df[col].min()), float(df[col].max()), float(df[col].mean()))
+    lower_bound, upper_bound, mid= 50.0, 1000.0, df[col].mean()
+    if col == "number_of_guests":
+        lower_bound, upper_bound, mid = int(lower_bound), int(upper_bound), int(mid)
+    val = st.number_input(f"{col.replace('_', ' ').capitalize()}", lower_bound, upper_bound, mid)
     input_data[col] = val
 
 for col in categorical:
@@ -65,7 +68,9 @@ input_encoded = input_encoded[input_columns]
 if st.button("Predict Food Waste"):
     print(input_encoded.shape)
     pred = model.predict(input_encoded)[0]
+    input_df['wastage_food_amount'] = f"{pred}:.2f"
     st.success(f"Predicted Food Waste: **{pred:.2f} kg**")
+    input_df.to_csv('log.csv', mode='a', header=False, index=False)
 
 # Show debug info
 with st.expander("🔍 Input Row Preview"):
