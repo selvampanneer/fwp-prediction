@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 from food_type_classify import food_type_classify
+from food_type_cv import match_food_item
 from helper import columns as log_columns
 # Load model and data
 model = joblib.load("rf.pkl")
@@ -28,8 +29,7 @@ original_df = df.copy()
 st.title("🍽️ Dynamic Food Waste Predictor")
 
 input_data = {}
-log_data = {}
-log_data['actual_location'] = ""
+log_data = {'actual_location': ""}
 # Build UI dynamically
 for col in numerical:
     lower_bound, upper_bound, mid= 50.0, 1000.0, df[col].mean()
@@ -40,9 +40,12 @@ for col in numerical:
 
 for col in categorical:
     if col == "type_of_food":
-        food_type = st.text_input("type_of_food")
-        log_data['name_of_food'] = food_type
-        input_data["type_of_food"] = food_type_classify(food_type)
+        food_item = st.text_input("type_of_food")
+        log_data['name_of_food'] = food_item
+        matched_category, score = match_food_item(food_item)
+        input_data["type_of_food"] = matched_category
+        print(f"✅ Best matched category: {matched_category} (score: {score:.3f})")
+        # input_data["type_of_food"] = food_type_classify(food_item)
         continue
     options = sorted(df[col].dropna().unique())
     val = st.selectbox(f"{col.replace('_', ' ').capitalize()}", options)
